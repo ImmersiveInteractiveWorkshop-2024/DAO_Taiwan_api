@@ -1,0 +1,8 @@
+node_modules
+app.js
+mongodb.atlas
+public
+.env
+config.env
+cred.json 
+oldfiles
