@@ -1,6 +1,6 @@
+const express = require("express");
 require("dotenv").config();
 require("./connections");
-const express = require("express");
 const fs = require("fs");
 const http = require("http");
 const formidable = require("formidable");
