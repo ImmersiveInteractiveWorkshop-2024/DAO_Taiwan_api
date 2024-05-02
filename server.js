@@ -233,9 +233,12 @@ app.post("/upload", (req, res) => {
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, '0'); 
     const day = String(currentDate.getDate()).padStart(2, '0');
-    
-    const fileName = `${fileType}-${year}${month}${day}-${originalFileName}`;
-    const textureBlob = textureBucket.file(fileName);
+    const hour = String(currentDate.getHours()).padStart(2, '0');
+    const minute = String(currentDate.getMinutes()).padStart(2, '0');
+    const second = String(currentDate.getSeconds()).padStart(2, '0');
+    const millisecond = String(currentDate.getMilliseconds()).padStart(3, '0');
+
+    const fileName = `${fileType}-${year}${month}${day}-${hour}${minute}${second}${millisecond}-${originalFileName}`;const textureBlob = textureBucket.file(fileName);
     const textureBlobStream = textureBlob.createWriteStream({
       resumable: false,
     });
