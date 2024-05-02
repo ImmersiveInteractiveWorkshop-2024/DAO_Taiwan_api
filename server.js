@@ -228,7 +228,13 @@ app.post("/upload", (req, res) => {
     const filePath = file.filepath;
     const originalFileName = file.originalFilename;
     const fileType = Array.isArray(fields.type) ? fields.type[0] : fields.type;
-    const fileName = `${fileType}-${originalFileName}`;
+    
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0'); 
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    
+    const fileName = `${fileType}-${year}${month}${day}-${originalFileName}`;
     const textureBlob = textureBucket.file(fileName);
     const textureBlobStream = textureBlob.createWriteStream({
       resumable: false,
@@ -267,7 +273,22 @@ app.post("/upload", (req, res) => {
     textureBlobStream.end(fs.readFileSync(filePath));
   });
 });
-
+// 處理刪除特定 ID 的貼圖影像
+app.delete("/image/delete/:id", async (req, res) => {
+  const textureImageId = req.params.id;
+  try {
+    // 在資料庫中查詢指定 ID 的材質圖片並刪除
+    const deletedTextureImage = await texutureImage.findByIdAndDelete(textureImageId);
+    if (!deletedTextureImage) {
+      return res.status(404).json({ message: "Texture image not found." });
+    }
+    // 若找到並刪除成功，則回傳成功訊息
+    res.json({ status: "success", message: "Texture image deleted successfully." });
+  } catch (error) {
+    console.error("Failed to delete texture image: ", error);
+    res.status(500).json({ error: "Failed to delete texture image." });
+  }
+});
 // 啟動伺服器監聽指定埠口
 server.listen(PORT, () => console.log(`伺服器正在監聽埠口 ${PORT}`));
 module.exports = app;
