@@ -150,6 +150,8 @@ app.post("/result/upload", upload.single("imageData"), async (req, res) => {
           message: "File uploaded successfully",
           data: newresultImage,
         });
+        io.emit("result-upload", { message: "渲染圖準備完成", _id: originalId, category:fileType }); //發送 socket id 訊息給客戶端
+        console.log(`渲染圖準備完成,id:${originalId}`);
       } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Error saving to database." });
@@ -211,6 +213,7 @@ app.get("/results/:id", async (req, res) => {
         .json({ message: "No result images found for the given original ID." });
     }
     res.json({ status: "success", data: resultImages });
+    
   } catch (error) {
     console.error("Failed to fetch result images: ", error);
     res.status(500).json({ error: "Failed to fetch result images." });
