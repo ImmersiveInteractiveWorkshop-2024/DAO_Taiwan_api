@@ -8,6 +8,7 @@ const path = require("path");
 const { Storage } = require("@google-cloud/storage");
 const cors = require("cors");
 const multer = require("multer");
+const dayjs = require('dayjs');
 const PORT = process.env.PORT || 8080;
 
 const socket = require("socket.io");
@@ -15,7 +16,6 @@ const app = express();
 const server = http.createServer(app);
 const io = socket(server, {
   cors: {
-    // origin: "http://localhost:3000",
     origin: "*",
   },
 });
@@ -232,16 +232,21 @@ app.post("/upload", (req, res) => {
     const originalFileName = file.originalFilename;
     const fileType = Array.isArray(fields.type) ? fields.type[0] : fields.type;
     
-    const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0'); 
-    const day = String(currentDate.getDate()).padStart(2, '0');
-    const hour = String(currentDate.getHours()).padStart(2, '0');
-    const minute = String(currentDate.getMinutes()).padStart(2, '0');
-    const second = String(currentDate.getSeconds()).padStart(2, '0');
-    const millisecond = String(currentDate.getMilliseconds()).padStart(3, '0');
-
-    const fileName = `${fileType}-${year}${month}${day}-${hour}${minute}${second}${millisecond}-${originalFileName}`;const textureBlob = textureBucket.file(fileName);
+    // const currentDate = new Date();
+    // const year = currentDate.getFullYear();
+    // const month = String(currentDate.getMonth() + 1).padStart(2, '0'); 
+    // const day = String(currentDate.getDate()).padStart(2, '0');
+    // const hour = String(currentDate.getHours()).padStart(2, '0');
+    // const minute = String(currentDate.getMinutes()).padStart(2, '0');
+    // const second = String(currentDate.getSeconds()).padStart(2, '0');
+    // const millisecond = String(currentDate.getMilliseconds()).padStart(3, '0');
+    const currentDate = dayjs(); // 取得當前日期時間
+    const folderName = currentDate.format('YYYYMMDD'); // 格式化日期為 YYYYMMDD
+    const unixTimestamp = currentDate.format('HHmmssSSS'); // 格式化時間為小時分秒毫秒
+    const fileName= `${fileType}-${unixTimestamp}-${originalFileName}`;//存入資料庫 fileName 欄位名稱
+    const pathName = `${folderName}/${fileType}-${unixTimestamp}-${originalFileName}`; //存入GCS路徑
+    
+    const textureBlob = textureBucket.file(pathName);
     const textureBlobStream = textureBlob.createWriteStream({
       resumable: false,
     });
