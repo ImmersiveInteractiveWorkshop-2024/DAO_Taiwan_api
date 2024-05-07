@@ -73,7 +73,7 @@ io.on("connection", function (socket) {
 // Google Cloud Storage 設定
 const textureStorage = new Storage({
   keyFilename: path.join(__dirname, process.env.GOOGLE_APPLICATION_CREDENTIALS), // 設定金鑰檔案路徑
-  projectId: "dao-420504", // 設定專案 ID
+  projectId: process.env.PROJECT_ID, // 設定專案 ID
 });
 const textureBucket = textureStorage.bucket(
   process.env.GCLOUD_STORAGE_BUCKET_TEXTURE
@@ -81,7 +81,7 @@ const textureBucket = textureStorage.bucket(
 
 const resultStorage = new Storage({
   keyFilename: path.join(__dirname, process.env.GOOGLE_APPLICATION_CREDENTIALS), // 設定金鑰檔案路徑
-  projectId: "dao-420504", // 設定專案 ID
+  projectId: process.env.PROJECT_ID, // 設定專案 ID
 });
 const resultBucket = resultStorage.bucket(
   process.env.GCLOUD_STORAGE_BUCKET_RESULT
@@ -232,20 +232,12 @@ app.post("/upload", (req, res) => {
     const originalFileName = file.originalFilename;
     const fileType = Array.isArray(fields.type) ? fields.type[0] : fields.type;
     
-    // const currentDate = new Date();
-    // const year = currentDate.getFullYear();
-    // const month = String(currentDate.getMonth() + 1).padStart(2, '0'); 
-    // const day = String(currentDate.getDate()).padStart(2, '0');
-    // const hour = String(currentDate.getHours()).padStart(2, '0');
-    // const minute = String(currentDate.getMinutes()).padStart(2, '0');
-    // const second = String(currentDate.getSeconds()).padStart(2, '0');
-    // const millisecond = String(currentDate.getMilliseconds()).padStart(3, '0');
     const currentDate = dayjs(); // 取得當前日期時間
     const folderName = currentDate.format('YYYYMMDD'); // 格式化日期為 YYYYMMDD
     const unixTimestamp = currentDate.format('HHmmssSSS'); // 格式化時間為小時分秒毫秒
     const fileName= `${fileType}-${unixTimestamp}-${originalFileName}`;//存入資料庫 fileName 欄位名稱
     const pathName = `${folderName}/${fileType}-${unixTimestamp}-${originalFileName}`; //存入GCS路徑
-    
+
     const textureBlob = textureBucket.file(pathName);
     const textureBlobStream = textureBlob.createWriteStream({
       resumable: false,
